@@ -92,10 +92,10 @@ GROUP BY kayttaja_id
 )
 ) ON id = alikysely_id;
 
--- Tehtävä 94:
+-- Tehtävä 94: Ilmoita jokaisesta käyttäjästä, monellako muulla käyttäjällä on kaverilistalla kaikki käyttäjän kaverit.
 
 
--- Tehtävä 95:
+-- Tehtävä 95: Ilmoita jokaisesta käyttäjästä, montako muuta eri käyttäjää on joko hänen kaverilistallaan tai jonkun kaverin kaverilistalla.
 
 
 -- Tehtävä 96: Pelaajat jaetaan joukkueisiin niin, että aakkosjärjestyksessä joka toinen pelaaja kuuluu joukkueeseen 1 ja 2. Ilmoita joukkuejako annetuille pelaajille.
@@ -116,10 +116,37 @@ FROM Pelaajat
 ORDER BY nimi
 );
 
--- Tehtävä 98:
+-- Tehtävä 98: Jokaisesta varauksesta on tiedossa alkupäivä ja loppupäivä. Kaksi varausta ovat päällekkäin, jos jokin päivä kuuluu kumpaankin varaukseen. Laske jokaiselle varaukselle, moniko toinen varaus menee päällekkäin sen kanssa.
+SELECT A.id, COUNT(*) - 1
+FROM Varaukset A, Varaukset B
+WHERE (A.alku BETWEEN B.alku AND B.loppu) OR
+(A.loppu BETWEEN B.alku AND B.loppu) OR
+(B.alku BETWEEN A.alku AND A.loppu) OR
+(B.loppu BETWEEN A.alku AND A.loppu)
+GROUP BY A.id;
 
+-- Tehtävä 99: Jokaisesta varauksesta on tiedossa alkupäivä ja loppupäivä. Mitkään kaksi varausta eivät ole päällekkäin. Ilmoita, mikä on suurin määrä tyhjiä päiviä kahden peräkkäisen varauksen välillä.
+SELECT MAX(tyhjat)
+FROM (
+SELECT alku_B - loppu_A - 1 tyhjat
+FROM (
+SELECT
+A.alku alku_A, A.loppu loppu_A,
+B.alku alku_B, B.loppu loppu_B
+FROM Varaukset A, Varaukset B
+ORDER BY A.alku, A.loppu, B.alku, B.loppu
+)
+WHERE alku_A < alku_B AND
+loppu_A < loppu_B
+GROUP BY alku_A
+);
 
--- Tehtävä 99:
-
-
--- Tehtävä 100:
+-- Tehtävä 100: Jokaisesta varauksesta on tiedossa alkupäivä ja loppupäivä. Laske, montako varausta on enimmillään päällekkäin samana päivänä.
+SELECT MAX(paallekkain)
+FROM (
+SELECT COUNT(*) paallekkain
+FROM Varaukset A, Varaukset B
+WHERE (A.alku BETWEEN B.alku AND B.loppu) OR
+(A.loppu BETWEEN B.alku AND B.loppu)
+GROUP BY A.id
+);
